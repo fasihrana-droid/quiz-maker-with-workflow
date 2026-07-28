@@ -1,0 +1,6 @@
+{
+  "name": "Quiz Maker",
+  "description": "Comprehensive Quiz Maker app with Teacher & Student portals, Question Bank management, CSV & Excel import/export, interactive test engine, and real-time student performance analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
