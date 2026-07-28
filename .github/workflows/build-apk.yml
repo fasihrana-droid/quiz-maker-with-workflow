@@ -2,15 +2,24 @@ name: Build Debug APK
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch: {}
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
@@ -18,31 +27,29 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+          cache: gradle
 
-      - name: Set up Android SDK
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Set up Gradle (auto-generates wrapper if missing)
-        uses: gradle/actions/setup-gradle@v4
+      - name: Accept Android SDK Licenses
+        run: yes | sdkmanager --licenses
 
-      - name: Generate Gradle wrapper (if not committed)
+      - name: Install Android SDK Components
         run: |
-          if [ ! -f "./gradlew" ]; then
-            gradle wrapper --gradle-version 8.13
-          fi
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0"
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
 
-      - name: Build debug APK
+      - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Locate APK
-        run: find . -name "*.apk"
-
-      - name: Upload APK artifact
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: quiz-maker-debug-apk
-          path: |
-            **/outputs/apk/**/*.apk
+          path: app/build/outputs/apk/debug/*.apk
